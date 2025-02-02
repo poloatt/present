@@ -93,26 +93,39 @@ export const inquilinoController = {
 
   getActivos: async (req, res) => {
     try {
-      const inquilinos = await prisma.inquilino.findMany({
+      // Primero verificamos si hay registros
+      const count = await prisma.inquilino.count();
+      
+      if (count === 0) {
+        return res.json([]);
+      }
+
+      const inquilinosActivos = await prisma.inquilino.findMany({
         where: {
-          estado: 'ACTIVO',
-          usuarioId: req.user.id
+          activo: true
         },
         include: {
-          contratos: {
-            include: {
-              propiedad: true
-            }
-          }
+          contratos: true
         }
       });
-      res.json(inquilinos);
+
+      res.json(inquilinosActivos || []);
     } catch (error) {
       console.error('Error al obtener inquilinos activos:', error);
       res.status(500).json({ 
         error: 'Error al obtener inquilinos activos',
         details: error.message 
       });
+    }
+  },
+
+  getCount: async (req, res) => {
+    try {
+      const count = await prisma.inquilino.count();
+      res.json(count);
+    } catch (error) {
+      console.error('Error al obtener conteo de inquilinos:', error);
+      res.status(500).json({ error: 'Error al obtener conteo de inquilinos' });
     }
   }
 }; 

@@ -41,6 +41,7 @@ const EntityToolbar = ({
   entityName = '',
   showValues,
   onToggleValues,
+  disableNavigation = false
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -238,7 +239,7 @@ const EntityToolbar = ({
             )}
           </Box>
 
-          {/* Sección central - Eliminado el Divider */}
+          {/* Sección central - Modificada para manejar navegación deshabilitada */}
           <Box sx={{ 
             display: 'flex',
             alignItems: 'center',
@@ -251,19 +252,25 @@ const EntityToolbar = ({
             overflow: 'auto'
           }}>
             {navigationItems.map((item) => (
-              <Tooltip key={item.to} title={item.label}>
-                <IconButton
-                  onClick={() => navigate(item.to)}
-                  size="small"
-                  sx={{
-                    color: 'text.secondary',
-                    '&:hover': { color: 'text.primary' }
-                  }}
-                >
-                  {React.cloneElement(item.icon, { 
-                    sx: { fontSize: 18 } 
-                  })}
-                </IconButton>
+              <Tooltip 
+                key={item.to} 
+                title={disableNavigation ? 'Primero debes crear una propiedad' : item.label}
+              >
+                <span> {/* Wrapper para mantener el tooltip cuando está deshabilitado */}
+                  <IconButton
+                    onClick={() => !disableNavigation && navigate(item.to)}
+                    size="small"
+                    disabled={disableNavigation}
+                    sx={{
+                      color: disableNavigation ? 'action.disabled' : 'text.secondary',
+                      '&:hover': { color: disableNavigation ? 'action.disabled' : 'text.primary' }
+                    }}
+                  >
+                    {React.cloneElement(item.icon, { 
+                      sx: { fontSize: 18 } 
+                    })}
+                  </IconButton>
+                </span>
               </Tooltip>
             ))}
           </Box>

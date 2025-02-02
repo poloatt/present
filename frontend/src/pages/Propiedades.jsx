@@ -387,6 +387,9 @@ export function Propiedades() {
     getBanos: (item) => item.banos
   };
 
+  // Pasar el estado de propiedades a los componentes hijos
+  const hasPropiedades = propiedades.length > 0;
+
   if (loading) {
     return (
       <Container sx={{ py: 4 }}>
@@ -438,6 +441,7 @@ export function Propiedades() {
             to: '/inventario'
           }
         ]}
+        disableNavigation={!hasPropiedades}
       />
 
       <EntityDetails 

@@ -27,12 +27,16 @@ import {
 
 export function Inventario() {
   const [items, setItems] = useState([]);
+  const [propiedades, setPropiedades] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
-    fetchInventario();
+    Promise.all([
+      fetchInventario(),
+      fetchPropiedades()
+    ]);
   }, []);
 
   const fetchInventario = async () => {
@@ -44,6 +48,15 @@ export function Inventario() {
       enqueueSnackbar('Error al cargar inventario', { variant: 'error' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPropiedades = async () => {
+    try {
+      const response = await axios.get('/api/propiedades');
+      setPropiedades(response.data);
+    } catch (error) {
+      console.error('Error al cargar propiedades:', error);
     }
   };
 
@@ -92,6 +105,8 @@ export function Inventario() {
     }
   ];
 
+  const hasPropiedades = propiedades.length > 0;
+
   return (
     <Container maxWidth="lg">
       <EntityToolbar
@@ -119,6 +134,7 @@ export function Inventario() {
             to: '/contratos'
           }
         ]}
+        disableNavigation={!hasPropiedades}
       />
 
       <EntityDetails

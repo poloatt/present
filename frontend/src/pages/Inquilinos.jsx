@@ -28,13 +28,26 @@ import {
 
 export function Inquilinos() {
   const [inquilinos, setInquilinos] = useState([]);
+  const [propiedades, setPropiedades] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
-    fetchInquilinos();
+    Promise.all([
+      fetchInquilinos(),
+      fetchPropiedades()
+    ]);
   }, []);
+
+  const fetchPropiedades = async () => {
+    try {
+      const response = await axios.get('/api/propiedades');
+      setPropiedades(response.data);
+    } catch (error) {
+      console.error('Error al cargar propiedades:', error);
+    }
+  };
 
   const fetchInquilinos = async () => {
     try {
@@ -91,6 +104,8 @@ export function Inquilinos() {
     }
   ];
 
+  const hasPropiedades = propiedades.length > 0;
+
   return (
     <Container maxWidth="lg">
       <EntityToolbar
@@ -118,6 +133,7 @@ export function Inquilinos() {
             to: '/inventario'
           }
         ]}
+        disableNavigation={!hasPropiedades}
       />
 
       <EntityDetails

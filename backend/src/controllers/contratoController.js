@@ -92,27 +92,40 @@ export const contratoController = {
 
   getActivos: async (req, res) => {
     try {
-      const contratos = await prisma.contrato.findMany({
+      // Primero verificamos si hay registros
+      const count = await prisma.contrato.count();
+      
+      if (count === 0) {
+        return res.json([]);
+      }
+
+      const contratosActivos = await prisma.contrato.findMany({
         where: {
-          AND: [
-            { estado: 'ACTIVO' },
-            {
-              propiedad: {
-                usuarioId: req.user.id
-              }
-            }
-          ]
+          activo: true
         },
         include: {
           inquilino: true,
-          propiedad: true,
-          moneda: true
+          propiedad: true
         }
       });
-      res.json(contratos);
+
+      res.json(contratosActivos || []);
     } catch (error) {
       console.error('Error al obtener contratos activos:', error);
-      res.status(500).json({ error: 'Error al obtener contratos activos' });
+      res.status(500).json({ 
+        error: 'Error al obtener contratos activos',
+        details: error.message 
+      });
+    }
+  },
+
+  getCount: async (req, res) => {
+    try {
+      const count = await prisma.contrato.count();
+      res.json(count);
+    } catch (error) {
+      console.error('Error al obtener conteo de contratos:', error);
+      res.status(500).json({ error: 'Error al obtener conteo de contratos' });
     }
   }
 }; 
